@@ -21,6 +21,7 @@ public class IndexController {
         // {"code":200,"data":{"token":"admin-token"}}
         Map<String, Object> map = new HashMap<>();
         map.put("token", "admin-token");
+        System.out.println("test");
         return Result.ok(map);
     }
 
