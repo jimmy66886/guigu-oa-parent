@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.zzmr.auth.service.SysUserService;
 import com.zzmr.common.result.Result;
+import com.zzmr.common.utils.MD5;
 import com.zzmr.model.system.SysUser;
 import com.zzmr.vo.system.SysUserQueryVo;
 import io.swagger.annotations.Api;
@@ -35,8 +36,8 @@ public class SysUserController {
     // 更改用户状态
     @ApiOperation("更改用户状态")
     @GetMapping("updateStatus/{id}/{status}")
-    public Result updateStatus(@PathVariable Long id, @PathVariable Integer status){
-        service.updateStatus(id,status);
+    public Result updateStatus(@PathVariable Long id, @PathVariable Integer status) {
+        service.updateStatus(id, status);
         return Result.ok();
     }
 
@@ -74,6 +75,11 @@ public class SysUserController {
     @ApiOperation("添加用户")
     @PostMapping("/save")
     public Result save(@RequestBody SysUser sysUser) {
+
+        // 密码进行加密,使用MD5
+        String passwordMD5 = MD5.encrypt(sysUser.getPassword());
+        sysUser.setPassword(passwordMD5);
+
         boolean isSuccess = service.save(sysUser);
         if (isSuccess) {
             return Result.ok();
