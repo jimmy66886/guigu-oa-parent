@@ -80,15 +80,17 @@ public class IndexController {
 
 
         // 1 请求头中获取用于信息(获取请求头token字符串)
-        String token = request.getHeader("header");
+        String token = request.getHeader("token");
+        System.out.println("查看是否有token" + token);
         // 2 从token字符串获取用户id,或者用户名称
         Long userId = JwtHelper.getUserId(token);
+        System.out.println("测试是否有userId" + userId);
         // 3 根据用户id查询数据库,把用户信息获取出来
         SysUser user = sysUserService.getById(userId);
         // 4 根据用户id获取用户可以操作的菜单列表---查询数据库动态构建路由结构,进行最终的显示
-        List<RouterVo> routerList = sysMenuService.findUserMenuListByUserId(userId);
+        List<RouterVo> routerList = sysMenuService.findUserMenuListByUserId(user.getId());
         // 5 根据用户id获取用户可以操作按钮列表
-        List<String> permsList = sysMenuService.findUserPermsByUserId(userId);
+        List<String> permsList = sysMenuService.findUserPermsByUserId(user.getId());
 
         Map<String, Object> map = new HashMap<>();
         map.put("roles", "[admin]");

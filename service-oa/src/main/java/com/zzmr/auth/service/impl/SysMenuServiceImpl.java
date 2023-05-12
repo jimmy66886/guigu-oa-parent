@@ -107,99 +107,75 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         }
     }
 
-    // 根据用户id获取用户可以操作的菜单列表
+    //4 根据用户id获取用户可以操作菜单列表
     @Override
     public List<RouterVo> findUserMenuListByUserId(Long userId) {
-
         List<SysMenu> sysMenuList = null;
-
-        // 1 判断当前用户是否是管理员
-        // 1.1 如果是管理员，查询所有菜单列表
-        if (userId.longValue() == 1) {  // 是1 就是管理员
+        //1 判断当前用户是否是管理员   userId=1是管理员
+        //1.1 如果是管理员，查询所有菜单列表
+        if(userId.longValue() == 1) {
+            //查询所有菜单列表
             LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysMenu::getStatus, 1);
+            wrapper.eq(SysMenu::getStatus,1);
             wrapper.orderByAsc(SysMenu::getSortValue);
             sysMenuList = baseMapper.selectList(wrapper);
         } else {
-            // 1.2 如果不是管理员,根据用户id查询可以操作菜单列表
-            // 多表关联查询  用户角色关系表  角色菜单关系表   菜单表
+            //1.2 如果不是管理员，根据userId查询可以操作菜单列表
+            //多表关联查询：用户角色关系表 、 角色菜单关系表、 菜单表
             sysMenuList = baseMapper.findMenuListByUserId(userId);
         }
 
-        // 2 把查询出来数据列表构建成框架要求的路由数据结构
-        // 3 使用菜单操作工具类构建树形结构
+        //2 把查询出来数据列表-构建成框架要求的路由结构
+        //使用菜单操作工具类构建树形结构
         List<SysMenu> sysMenuTreeList = MenuHelper.buildTree(sysMenuList);
-        // 构建框架要求的路由结构
+        //构建成框架要求的路由结构
         List<RouterVo> routerList = this.buildRouter(sysMenuTreeList);
         return routerList;
     }
 
-    // 构建框架要求的路由结构
+    //构建成框架要求的路由结构
     private List<RouterVo> buildRouter(List<SysMenu> menus) {
-        // 创建List集合,存储最终数据
+        //创建list集合，存储最终数据
         List<RouterVo> routers = new ArrayList<>();
-        for (SysMenu menu : menus) {
+        //menus遍历
+        for(SysMenu menu : menus) {
             RouterVo router = new RouterVo();
             router.setHidden(false);
             router.setAlwaysShow(false);
             router.setPath(getRouterPath(menu));
             router.setComponent(menu.getComponent());
             router.setMeta(new MetaVo(menu.getName(), menu.getIcon()));
-            // 下一层数据部分
+            //下一层数据部分
             List<SysMenu> children = menu.getChildren();
-            if (menu.getType().intValue() == 1) {
-                // 加载下面隐藏路由
-                List<SysMenu> hiddenMenuList = children.stream().filter(item -> !StringUtils.isEmpty(item.getComponent()))
+            if(menu.getType().intValue() == 1) {
+                //加载出来下面隐藏路由
+                List<SysMenu> hiddenMenuList = children.stream()
+                        .filter(item -> !StringUtils.isEmpty(item.getComponent()))
                         .collect(Collectors.toList());
-                for (SysMenu hiddenMenu : hiddenMenuList) {
+                for(SysMenu hiddenMenu : hiddenMenuList) {
                     RouterVo hiddenRouter = new RouterVo();
-                    router.setHidden(true);
-                    router.setAlwaysShow(false);
-                    router.setPath(getRouterPath(menu));
-                    router.setComponent(menu.getComponent());
-                    router.setMeta(new MetaVo(menu.getName(), menu.getIcon()));
+                    //true 隐藏路由
+                    hiddenRouter.setHidden(true);
+                    hiddenRouter.setAlwaysShow(false);
+                    hiddenRouter.setPath(getRouterPath(hiddenMenu));
+                    hiddenRouter.setComponent(hiddenMenu.getComponent());
+                    hiddenRouter.setMeta(new MetaVo(hiddenMenu.getName(), hiddenMenu.getIcon()));
+
                     routers.add(hiddenRouter);
                 }
+
             } else {
-                if (CollectionUtils.isEmpty(children)) {
-                    if (children.size() > 0) {
+                if(!CollectionUtils.isEmpty(children)) {
+                    if(children.size() > 0) {
                         router.setAlwaysShow(true);
                     }
-                    // 递归
+                    //递归
                     router.setChildren(buildRouter(children));
                 }
             }
             routers.add(router);
         }
         return routers;
-    }
-
-    // 根据用户id获取用户可以操作的按钮列表
-    @Override
-    public List<String> findUserPermsByUserId(Long userId) {
-        // 判断是否是管理员,如果是管理员,查询所有的按钮列表
-        List<SysMenu> sysMenuList = null;
-        if (userId.longValue() == 1) {
-            LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(SysMenu::getStatus, 1);
-            sysMenuList = baseMapper.selectList(wrapper);
-        } else {
-            // 如果不是管理员,根据userId查询可以操作按钮列表  多表关联查询,用户角色关系表,角色菜单关系表,菜单表
-            sysMenuList = baseMapper.findMenuListByUserId(userId);
-        }
-        // 从查询出来的数据里面,获取到可以操作按钮值,封装为List集合进行返回
-        /*List<String> permsList = new ArrayList<>();
-        for (SysMenu sysMenu : sysMenuList) {
-            if (sysMenu.getType() == 2) {
-                String perms = sysMenu.getPerms();
-                permsList.add(perms);
-            }
-        }*/
-
-        List<String> permsList = sysMenuList.stream().filter(item -> item.getType() == 2)
-                .map(item -> item.getPerms()).collect(Collectors.toList());
-
-        return permsList;
     }
 
     /**
@@ -210,9 +186,34 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
      */
     public String getRouterPath(SysMenu menu) {
         String routerPath = "/" + menu.getPath();
-        if (menu.getParentId().intValue() != 0) {
+        if(menu.getParentId().intValue() != 0) {
             routerPath = menu.getPath();
         }
         return routerPath;
+    }
+
+    //5 根据用户id获取用户可以操作按钮列表
+    @Override
+    public List<String> findUserPermsByUserId(Long userId) {
+        //1 判断是否是管理员，如果是管理员，查询所有按钮列表
+        List<SysMenu> sysMenuList = null;
+        if(userId.longValue() == 1) {
+            //查询所有菜单列表
+            LambdaQueryWrapper<SysMenu> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(SysMenu::getStatus,1);
+            sysMenuList = baseMapper.selectList(wrapper);
+        } else {
+            //2 如果不是管理员，根据userId查询可以操作按钮列表
+            //多表关联查询：用户角色关系表 、 角色菜单关系表、 菜单表
+            sysMenuList = baseMapper.findMenuListByUserId(userId);
+        }
+
+        //3 从查询出来的数据里面，获取可以操作按钮值的list集合，返回
+        List<String> permsList = sysMenuList.stream()
+                .filter(item -> item.getType() == 2)
+                .map(item -> item.getPerms())
+                .collect(Collectors.toList());
+
+        return permsList;
     }
 }
