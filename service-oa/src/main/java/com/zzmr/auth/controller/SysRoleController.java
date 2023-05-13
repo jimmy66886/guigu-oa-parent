@@ -11,6 +11,7 @@ import com.zzmr.vo.system.SysRoleQueryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,6 +66,7 @@ public class SysRoleController {
 
     // 条件分页查询
     // page 当前页 limit 每页显示的记录数
+    @PreAuthorize("hasAuthority('bnt.sysRole.list')")
     @ApiOperation("条件分页查询")
     @GetMapping("/{page}/{limit}")
     public Result pageQueryRole(@PathVariable Long page, @PathVariable Long limit,
@@ -86,6 +88,7 @@ public class SysRoleController {
     }
 
     @ApiOperation("添加")
+    @PreAuthorize("hasAuthority('bnt.sysRole.add')")
     @PostMapping("/save")
     public Result save(@RequestBody SysRole sysRole) {
         boolean isSuccess = sysRoleService.save(sysRole);
@@ -98,6 +101,7 @@ public class SysRoleController {
 
     // 修改角色-根据id查询
     @ApiOperation("根据id查询")
+    @PreAuthorize("hasAuthority('bnt.sysRole.list')")
     @GetMapping("/get/{id}")
     public Result get(@PathVariable Long id) {
         SysRole sysRole = sysRoleService.getById(id);
@@ -106,6 +110,7 @@ public class SysRoleController {
 
     // 修改角色-最终修改
     @ApiOperation("修改")
+    @PreAuthorize("hasAuthority('bnt.sysRole.update')")
     @PutMapping("/update")
     public Result update(@RequestBody SysRole sysRole) {
         boolean isSuccess = sysRoleService.updateById(sysRole);
@@ -118,6 +123,7 @@ public class SysRoleController {
 
     // 根据id删除
     @ApiOperation("根据id删除")
+    @PreAuthorize("hasAuthority('bnt.sysRole.remove')")
     @DeleteMapping("/remove/{id}")
     public Result remove(@PathVariable Long id) {
         boolean isSuccess = sysRoleService.removeById(id);
@@ -132,6 +138,7 @@ public class SysRoleController {
     // 前端传入的数据数组样式: [1,2,3]
     // 这里有一个对应关系:json的数组会转换为Java中的list集合
     @ApiOperation("批量删除")
+    @PreAuthorize("hasAuthority('bnt.sysRole.remove')")
     @DeleteMapping("/batchRemove")
     public Result batchRemove(@RequestBody List<Long> idList) {
         boolean isSuccess = sysRoleService.removeByIds(idList);
