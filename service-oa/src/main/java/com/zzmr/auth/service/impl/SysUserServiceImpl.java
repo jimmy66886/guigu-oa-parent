@@ -1,5 +1,6 @@
 package com.zzmr.auth.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.zzmr.auth.mapper.SysUserMapper;
 import com.zzmr.auth.service.SysUserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -23,5 +24,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         SysUser sysUser = baseMapper.selectById(id);
         sysUser.setStatus(status);
         baseMapper.updateById(sysUser);
+    }
+
+    @Override
+    public SysUser getUserByUserName(String username) {
+        LambdaQueryWrapper<SysUser> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SysUser::getUsername, username);
+        return baseMapper.selectOne(wrapper);
     }
 }

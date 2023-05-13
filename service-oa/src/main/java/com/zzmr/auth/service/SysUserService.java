@@ -15,4 +15,6 @@ import io.swagger.models.auth.In;
 public interface SysUserService extends IService<SysUser> {
 
     void updateStatus(Long id, Integer status);
+
+    SysUser getUserByUserName(String username);
 }
