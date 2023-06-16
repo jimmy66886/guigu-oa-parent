@@ -5,6 +5,7 @@ import com.zzmr.common.jwt.JwtHelper;
 import com.zzmr.common.result.ResponseUtil;
 import com.zzmr.common.result.Result;
 import com.zzmr.common.result.ResultCodeEnum;
+import com.zzmr.security.custom.LoginUserInfoHelper;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -52,6 +53,11 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         if (!StringUtils.isEmpty(token)) {
             String username = JwtHelper.getUsername(token);
             if (!StringUtils.isEmpty(username)) {
+
+                // 当前用户信息放到ThreadLocal里面
+                LoginUserInfoHelper.setUserId(JwtHelper.getUserId(token));
+                LoginUserInfoHelper.setUsername(JwtHelper.getUsername(token));
+
                 // TODO 从redis中通过用户名称获取该用户的权限信息
                 String autoString = (String) redisTemplate.opsForValue().get(username);
                 // 把redis获取字符串权限数据转换为要求的集合类型    List<SimpleGrantedAuthority>

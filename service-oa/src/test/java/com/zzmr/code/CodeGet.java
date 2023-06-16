@@ -18,9 +18,9 @@ public class CodeGet {
         // 2、全局配置
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
-        gc.setOutputDir("D:\\Codefield\\guigu-oa-parent\\service-oa"+"/src/main/java");
+        gc.setOutputDir("D:\\Codefield\\guigu-oa-parent\\service-oa" + "/src/main/java");
 
-        gc.setServiceName("%sService");	//去掉Service接口的首字母I
+        gc.setServiceName("%sService");    // 去掉Service接口的首字母I
         gc.setAuthor("zzmr");
         gc.setOpen(false);
         mpg.setGlobalConfig(gc);
@@ -37,7 +37,7 @@ public class CodeGet {
         // 4、包配置
         PackageConfig pc = new PackageConfig();
         pc.setParent("com.zzmr");
-        pc.setModuleName("auth"); //模块名
+        pc.setModuleName("process"); // 模块名
         pc.setController("controller");
         pc.setService("service");
         pc.setMapper("mapper");
@@ -48,15 +48,15 @@ public class CodeGet {
 
         // 指定表名
         // strategy.setInclude("sys_user_role");
-        strategy.setInclude("sys_menu","sys_role_menu");
+        strategy.setInclude("oa_process_record");
 
-        strategy.setNaming(NamingStrategy.underline_to_camel);//数据库表映射到实体的命名策略
+        strategy.setNaming(NamingStrategy.underline_to_camel);// 数据库表映射到实体的命名策略
 
-        strategy.setColumnNaming(NamingStrategy.underline_to_camel);//数据库表字段映射到实体的命名策略
+        strategy.setColumnNaming(NamingStrategy.underline_to_camel);// 数据库表字段映射到实体的命名策略
         strategy.setEntityLombokModel(true); // lombok 模型 @Accessors(chain = true) setter链式操作
 
-        strategy.setRestControllerStyle(true); //restful api风格控制器
-        strategy.setControllerMappingHyphenStyle(true); //url中驼峰转连字符
+        strategy.setRestControllerStyle(true); // restful api风格控制器
+        strategy.setControllerMappingHyphenStyle(true); // url中驼峰转连字符
 
         mpg.setStrategy(strategy);
 
